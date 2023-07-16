@@ -3,14 +3,19 @@ kind: CronJob
 metadata:
   name: ckad-cron1
 spec:
-  schedule: "* * * * *"
-  startingDeadlineSeconds: 30
-  concurrencyPolicy: Allow
-  successfulJobsHistoryLimit: 5
-  failedJobsHistoryLimit: 2
+  schedule: "* * * * *"     # minute hour day-of-month month day-of-week [only field required of cronjobs]
+                            # NB: timezone comes from k8s API server
+                            # NB1: cronjob controller checks for any new job every 10s
+                            # NB2: cronjob controller tries to start a job at most 100 times, then gives up
+  startingDeadlineSeconds: 30   # check last 30 seconds for 100 missed schedules (default: 0)
+                                # if a job is scheduled and doesn't start within x seconds, it gets killed
+                                # NB: if set to less than 10s, then job might be missed (since the controller wakes up every 10s)
+  concurrencyPolicy: Allow      # Allow | Forbid | Replace - allow new jobs if previous instance is still running
+  successfulJobsHistoryLimit: 5 # how many jobs (and related pods) to keep around of previous runs (default: 3)
+  failedJobsHistoryLimit: 2     # same as above but for failed jobs (default: 1)
   jobTemplate:
     spec:
-      template: 
+      template:
         spec:
           containers:
           - name: ckad-ctr

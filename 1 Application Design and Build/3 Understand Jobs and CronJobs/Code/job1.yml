@@ -3,15 +3,16 @@ kind: Job
 metadata:
   name: ckad1
 spec:
-  activeDeadlineSeconds: 10
-  ttlSecondsAfterFinished: 120
-  completions: 5
-  parallelism: 1
-  backoffLimit: 4
+  activeDeadlineSeconds: 10     # if a pod is still running after x second, kill it
+  ttlSecondsAfterFinished: 120  # clean up pods after x seconds
+  completions: 5  # until 5 (containers) complete
+  parallelism: 1  # 1 at a time
+  backoffLimit: 4 # cap number of retries
   template:
     spec:
-      restartPolicy: Never
+      restartPolicy: Never  # or: OnFailure
+                            # Never: pods stick around and can be troubleshooted
       containers:
       - name: ctr
         image: alpine:latest
-        command: ['sh', '-c', 'echo "Lets smash the CKAD" && sleep 60']
+        command: ['sh', '-c', 'echo "lets smash the CKAD!" && sleep 60']
